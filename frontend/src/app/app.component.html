@@ -1,0 +1,159 @@
+<div class="dashboard-wrapper">
+  <!-- Auth Configuration Layer -->
+  <header class="auth-bar">
+    <div class="brand">
+      <h1>Pipeline Stream Analytics</h1>
+      <h1>{{ title }}</h1>
+      <span class="badge">Angular 17 Active</span>
+    </div>
+
+    <div class="actions-group">
+      <!-- Simulated Auth Engine Links -->
+      @if (!isLoggedIn()) {
+        <button class="btn btn-success" (click)="simulateLogin()">
+          🔐 Simulate Login (Store JWT)
+        </button>
+      } @else {
+        <button class="btn btn-warning" (click)="simulateLogout()">
+          🔓 Logout (Flush JWT)
+        </button>
+      }
+    </div>
+    <div *ngIf="errorMessage()" class="alert alert-danger">
+      ⚠️ {{ errorMessage() }}
+    </div>
+    <div *ngIf="successMessage()" class="alert alert-success">
+      ✅ {{ successMessage() }}
+    </div>
+  </header>
+  @if (isLoggedIn()) {
+    <section class="table-section">
+      <h2>➕ Add new Service to monitor<span class="sync-dot"></span></h2>
+      <form (ngSubmit)="submitNewService()" id="formElementId" #serviceForm="ngForm">
+        <div class="form-group">
+          <label for="name">Name *</label>
+          <input
+            type="text"
+            [(ngModel)]="newServiceName"
+            (ngModelChange)="newServiceName.set($event)"
+            name="name"
+            id="name"
+            required
+            placeholder="Ex. payment-service">
+        </div>
+        <div class="form-group">
+          <label for="environment">Environment *</label>
+          <input
+            type="text"
+            [(ngModel)]="newServiceEnvironment"
+            (ngModelChange)="newServiceEnvironment.set($event)"
+            name="environment"
+            id="environment"
+            required
+            placeholder="Ex. dev">
+        </div>
+        <div class="form-group">
+          <label for ="owner">Owner *</label>
+          <input
+            [(ngModel)]="newServiceOwner"
+            (ngModelChange)="newServiceOwner.set($event)"
+            name="owner"
+            id="owner"
+            required
+            placeholder="Ex. pod1">
+        </div>
+        <button type="submit" class="btn btn-success" [disabled]="!serviceForm.form.valid">
+          Create service
+        </button>
+      </form>
+    </section>
+    <section class="table-section">
+      <h2>Service Monitor <span class="sync-dot"></span></h2>
+      <table>
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Service Name</th>
+          <th>Environment</th>
+          <th>Owner</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (service of services(); track service.id) {
+            <tr>
+              <td><strong>{{ service.id }}</strong></td>
+              <td><span class="type-tag">{{ service.name }}</span></td>
+              <td>
+                <pre>{{ service.environment }}</pre>
+              </td>
+              <td>{{ (service.owner) }}</td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="4" class="empty-state">
+                📭 Active pool is empty. Backend pipeline posts mock events every 30s.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+    <section class="table-section">
+      <h2>Live Stream Monitor <span class="sync-dot"></span></h2>
+      <section class="card filter-section">
+        <h2>🔍 Search events</h2>
+        <div class="form-group inline-form">
+          <div class="input-field">
+            <label>Name:</label>
+            <input type="text" [(ngModel)]="inputServiceName" placeholder="Example auth-service">
+          </div>
+          <div class="input-field">
+            <label>Error type:</label>
+            <select [(ngModel)]="inputErrorType">
+              <option value="INFO">INFO</option>
+              <option value="WARNING">WARNING</option>
+              <option value="ERROR">ERROR</option>
+            </select>
+          </div>
+          <button class="btn btn-success" (click)="searchEvents()">Search</button>
+        </div>
+      </section>
+      <table>
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Classification Type</th>
+          <th>JSON Data Structure Payload</th>
+          <th>Time Dispatched</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (event of events(); track event.id) {
+            <tr>
+              <td><strong>{{ event.id }}</strong></td>
+              <td><span class="type-tag">{{ event.type }}</span></td>
+              <td>
+                <pre>{{ event.message }}</pre>
+              </td>
+              <td>{{ (event.created_at) | date:'yyyy-MM-dd HH:mm:ss' }}</td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="4" class="empty-state">
+                📭 Active pool is empty. Backend pipeline posts mock events every 30s.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  } @else {
+    <!-- Security Warning Block -->
+    <div class="unauthorized-placeholder">
+      <div class="lock-icon">🔒</div>
+      <h2>Secure Pipeline Access Required</h2>
+      <p>Please simulate a login sequence to attach a cryptographically valid JSON Web Token (JWT) to your outbound
+        browser request headers.</p>
+    </div>
+  }
+</div>
