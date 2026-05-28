@@ -1,0 +1,3 @@
+rootProject.name = 'event-management-monitoring'
+include 'backend'
+include 'frontend'

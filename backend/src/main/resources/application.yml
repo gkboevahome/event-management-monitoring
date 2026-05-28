@@ -1,0 +1,64 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: event.management.dashboard
+  flyway:
+    locations:
+      - classpath:db/migration
+      - classpath:db/callback
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/services_db}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:12345}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
+
+event-generator-scheduler:
+    fixed-rate-string: PT30S
+    event-mocks:
+      - type: INFO
+        message: |
+          {"status": 201, "accountId": %s,"amount": 3000,"currency": "EUR", "type": "WITHDRAW"}"
+        service:
+          name: Payment-Service
+          environment: dev
+          owner: pod1
+      - type: WARN
+        message: |
+          { "level": "WARN","message": "Balance at zero but VIP client" }"
+        service:
+          name: Payment-Service
+          environment: test
+          owner: pod2
+      - type: ERROR
+        message: |
+          { "status": 402, "level": "ERROR", "message": "Payment required: insufficient funds" }"
+        service:
+          name: Payment-Service
+          environment: prod
+          owner: pod1
+      - type: INFO
+        message: |
+          {"userId": "%s", "name" : "Ivan%s" }
+        service:
+          name: User-Service
+          environment: dev
+          owner: pod2
+      - type: WARN
+        message: |
+          { "level": "WARN","message": "Suspicious name" }"
+        service:
+          name: User-Service
+          environment: test
+          owner: pod2
+      - type: ERROR
+        message: |
+          { "status": 500, "level": "ERROR", "message": "SomeError occurred" }"
+        service:
+          name: User-Service
+          environment: prod
+          owner: pod1

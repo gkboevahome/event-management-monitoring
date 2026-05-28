@@ -1,0 +1,24 @@
+enum EventType {
+    INFO
+    WARNING
+    ERROR
+}
+
+type Service {
+    id: ID!
+    name: String!
+    environment: String!
+    owner: String!
+}
+
+type Event {
+    id: ID!
+    type: EventType!
+    message: String!
+    createdAt: String!
+    service: Service!
+}
+
+type Query {
+    getEvents(serviceName: String, type: EventType): [Event!]!
+}

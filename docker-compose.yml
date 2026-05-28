@@ -1,0 +1,47 @@
+
+services:
+  postgres-db:
+    image: postgres:15-alpine
+    container_name: services-postgres
+    environment:
+      POSTGRES_DB: services_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    container_name: event_management_dashboard_app
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - '8080:8080'
+      - "5005:5005"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/services_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 12345
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+    depends_on:
+      - postgres-db
+
+  # Frontend UI Layer
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: web-dashboard
+    ports:
+      - "4000:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
+
